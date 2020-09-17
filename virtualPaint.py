@@ -23,7 +23,6 @@ myColorValues = [[51, 153, 255],            #BGR
                  #[36,85,141]
                 ]
 
-points = []     #[x, y, colorId]
 
 def findColor(img, myColors):
     imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -55,10 +54,11 @@ def drawOnCanvas(points, myColorValues, imgResult):
 
 
 def main():
+    points = []     #[x, y, colorId]
     while True:
         success, img = cam.read()
         img = cv2.flip(img,1)
-        imgResult = np.ones_like(img)*255
+        imgResult = np.zeros_like(img)+255
         newPoints = findColor(img, myColors)
         if len(newPoints)!=0:
             for newP in newPoints:
@@ -68,6 +68,10 @@ def main():
         img = cv2.resize(img, (width//4, height//4))
         cv2.imshow("Camera", img)
         cv2.imshow("Virtual Paint", imgResult)
+        
+        if cv2.waitKey(1) & 0xFF == ord('e'):           # press e for erase.
+            points = []
+
         if cv2.waitKey(1) & 0xFF == ord('q'):           # press q for quit.
             break
 
