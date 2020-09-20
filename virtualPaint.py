@@ -1,10 +1,11 @@
 import cv2
 import numpy as np
-from win32api import GetSystemMetrics as gsm
+import screeninfo
 
 cam = cv2.VideoCapture(0)
-width = gsm(0)          # Width of screen
-height = gsm(1)         # Height of screen
+monitor = screeninfo.get_monitors()
+width = monitor[0].width          # Width of screen
+height = monitor[0].height         # Height of screen
 cam.set(3, width)       # Set width of camera
 cam.set(4, height)      # Set height of camera
 cam.set(10, 150)        # Set brightness
@@ -57,8 +58,9 @@ def main():
     points = []     #[x, y, colorId]
     while True:
         success, img = cam.read()
+        img = cv2.resize(img,(width,height))
         img = cv2.flip(img,1)
-        imgResult = np.zeros_like(img)+255
+        imgResult = np.ones_like(img)*255
         newPoints = findColor(img, myColors)
         if len(newPoints)!=0:
             for newP in newPoints:
@@ -66,9 +68,8 @@ def main():
         if len(points)!=0:
             drawOnCanvas(points, myColorValues, imgResult)
         img = cv2.resize(img, (width//4, height//4))
-        cv2.imshow("Camera", img)
         cv2.imshow("Virtual Paint", imgResult)
-        
+        cv2.imshow("Camera", img)        
         if cv2.waitKey(1) & 0xFF == ord('e'):           # press e for erase.
             points = []
 
