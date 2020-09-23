@@ -50,12 +50,18 @@ def getContours(img):
     return x+w//2, y
 
 def drawOnCanvas(points, myColorValues, imgResult):
-    for point in points:
-        cv2.circle(imgResult, (point[0],point[1]), 6, myColorValues[point[2]], cv2.FILLED)
+    for color in range(len(points)):
+        for point in range(len(points[color])-1):
+            # cv2.circle(imgResult, (point[0],point[1]), 6, myColorValues[point[2]], cv2.FILLED)
+            try:
+                cv2.line(imgResult,(points[color][point][0],points[color][point][1]),(points[color][point+1][0],points[color][point+1][1]),
+                    myColorValues[color],thickness=3)
+            except:
+                cv2.circle(imgResult, (points[color][point][0],points[color][point][1]), 6, myColorValues[color], cv2.FILLED)
 
 
 def main():
-    points = []     #[x, y, colorId]
+    points = [[] for i in range(len(myColors))]     #[x, y, colorId]
     while True:
         success, img = cam.read()
         img = cv2.resize(img,(width,height))
@@ -64,14 +70,15 @@ def main():
         newPoints = findColor(img, myColors)
         if len(newPoints)!=0:
             for newP in newPoints:
-                points.append(newP)
+                points[newP[2]].append(newP)
+                
         if len(points)!=0:
             drawOnCanvas(points, myColorValues, imgResult)
         img = cv2.resize(img, (width//4, height//4))
         cv2.imshow("Virtual Paint", imgResult)
         cv2.imshow("Camera", img)        
         if cv2.waitKey(1) & 0xFF == ord('e'):           # press e for erase.
-            points = []
+            points = [[] for i in range(len(myColors))]
 
         if cv2.waitKey(1) & 0xFF == ord('q'):           # press q for quit.
             break
